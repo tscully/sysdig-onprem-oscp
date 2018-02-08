@@ -148,17 +148,67 @@ objects:
     # NB. This affects cassandra storage
     sysdigcloud.captures.cassandra.storage: "false"
 parameters:
-- description: Maximum amount of memory the container can use.
-  displayName: Memory Limit
+- description: The name of the OpenShift Service exposed for the database
+  displayName: Database Service Name
   name: MYSQL_SERVICE_NAME
   required: true
-  value: 512Mi
-- description: The OpenShift Namespace where the ImageStream resides.
-  displayName: Namespace
-  name: NAMESPACE
-  value: openshift
-- description: The name of the OpenShift Service exposed for the database.
-  displayName: Database Service Name
-  name: DATABASE_SERVICE_NAME
+  value:
+- description: Username for MySQL user that will be used for accessing the database
+  displayName: MySQL Connection Username
+  name: MYSQL_USER
   required: true
-  value: mysql
+- description: Password for the MySQL connection user
+  displayName: MySQL Connection Password
+  name: MYSQL_PASSWORD
+  required: true
+- description: The name of the OpenShift Service exposed for Cassandra
+  displayName: Cassandra Service Name
+  name: CASSANDRA_SERVICE_NAME
+  required: true
+  value:
+- description: Enable or disable cassandra authentication and authorization in sysdigcloud cassandra image
+  displayName: Cassandra authentication and authorization
+  name: CASSANDRA_SECURE
+  value: "false"
+- description: Enable cassandra internodes and client encryption
+  displayName: Cassandra SSL
+  name: CASSANDRA_SSL_ENABLED
+  value: "false"
+- description: Username for Cassandra user that will be used for accessing the database
+  displayName: Cassandra Connection Username
+  name: CASSANDRA_USER
+- description: Password for the Cassandra connection user
+  displayName: Cassandra Connection Password
+  name: CASSANDRA_PASSWORD
+- description: Cassandra Port for CQL client
+  displayName: Cassandra CQL Port
+  name: CASSANDRA_PORT
+  required: true
+  value: "9042"
+- description: Cassandra replication factor to use. This parameter will just be applied during the keyspace creation, no changes are done to an already existing keyspace
+  displayName: Cassandra replication factor
+  name: CASSANDRA_REPLICATION_FACTOR
+  value: "1"
+- description: Cassandra JVM options. For heavy load environments you'll need to tweak the memory or garbage
+  displayName: Cassandra custom JVM options
+  name: CASSANDRA_JVM_OPTIONS
+- description: The name of the OpenShift Service exposed for Redis
+  displayName: Redis Service Name
+  name: REDIS_SERVICE_NAME
+  required: true
+  value:
+- description: Password for the Redis connection
+  displayName: Redis Connection Password
+  name: REDIS_PASSWORD
+- description:
+  displayName:
+  name:
+  value:
+- description:
+  displayName:
+  name:
+  value:
+- description:
+  displayName:
+  name:
+  value:
