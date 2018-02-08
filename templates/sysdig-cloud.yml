@@ -25,134 +25,256 @@ objects:
   metadata:
     name: sysdigcloud-config
   data:
-    # Required: MySQL endpoint DNS/IP. If MySQL is deployed as a Kubernetes service,
-    # this will be the service name. If using an external database, put the proper address
-    mysql.endpoint: mysql
-    # Required: MySQL user
-    mysql.user: root
-    # Required: MySQL password
-    mysql.password: JQQ4USSJWHMX3gcF
-    # Required: Cassandra endpoint DNS/IP. If Cassandra is deployed as a Kubernetes service,
-    # this will be the service name. If using an external database, put the proper address
-    # (the address of a single node will be sufficient)
-    cassandra.endpoint: cassandra
-    # Optional: enable or disable cassandra authentication and authorization in sysdigcloud cassandra image,
-    # if you want to enable it, make sure to follow the support guide in the official sysdigcloud documentation
-    cassandra.secure: "false"
-    # Optional: Enable cassandra internodes and client encryption
-    cassandra.ssl.enabled: "false"
-    # Optional: Specify Cassandra cipher suites to use. This option is available only when using external cassandra clusters.
-    # Comma separated value. Example: "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
-    cassandra.ssl.ciphers: ""
-    # Optional: Cassandra user
-    cassandra.user: ""
-    # Optional: Cassandra password
-    cassandra.password: ""
-    # Required: CQL native clients port
-    cassandra.port: "9042"
-    # Optional: Cassandra replication factor to use. This parameter will just be applied during the
-    # keyspace creation, no changes are done to an already existing keyspace
-    cassandra.replication.factor: "1"
-    # Optional: Cassandra JVM options, when Cassandra is started as a Kubernetes service using
-    # the provided manifests. For heavy load environments you'll need to tweak the memory or garbage
-    # collection settings
-    cassandra.jvm.options: ""
-    # Required: Redis endpoint DNS/IP. If Redis is deployed as a Kubernetes service,
-    # this will be the service name. If using an external database, put the proper address
-    redis.endpoint: redis
-    # Optional: Redis password
-    redis.password: ""
-    # Required: Elasticsearch URL. If Elasticsearch is deployed as a Kubernetes service,
-    # this will be the service name. If using an external database, put the proper address
-    elasticsearch.url: http://elasticsearch
-    # Optional: Elasticsearch JVM options, when Elasticsearch is started as a Kubernetes service using
-    # the provided manifests. For heavy load environments you'll need to tweak the memory or garbage
-    # collection settings
-    elasticsearch.jvm.options: ""
-    # Optional: SMTP server address, needed for Sysdig Cloud to send email notifications
-    smtp.server: ""
-    # Optional: SMTP server port
-    smtp.server.port: "25"
-    # Optional: SMTP user (leave empty if your server doesn't require authentication)
-    smtp.user: ""
-    # Optional: SMTP password (leave empty if your server doesn't require authentication)
-    smtp.password: ""
-    # Optional: SMTP Secure Connection options
-    smtp.tls: "false"
-    smtp.ssl: "false"
-    # Optional: From Header used for email notifications
-    smtp.from.address: ""
-    # Required: Collector service endpoint DNS/IP. If the collector needs to be reachable outside the Kubernetes
-    # cluster, this will likely need to be set to the address of the Kubernetes nodes (if using a NodePort service) or the
-    # cloud load balancer created by the service (if using a LoadBalancer service). Otherwise, it can be left
-    # to the default value and the collector will just be routable within the Kubernetes cluster.
-    collector.endpoint: sysdigcloud-collector
-    # Required: Collector port. If using a LoadBalancer service for the collector, the port can be left as the default.
-    # If using a NodePort service, this will need to be set to the dynamic port allocated by Kubernetes on the nodes
-    # (obtained via kubectl describe service sysdigcloud-collector)
-    collector.port: "6443"
-    # Required: Api service https URL. If the api needs to be reachable outside the Kubernetes
-    # cluster, this will likely need to be set to the address of the Kubernetes nodes and the dynamic port allocated
-    # by Kubernetes (if using a NodePort service) or the cloud load balancer created by the service (if using a LoadBalancer service).
-    # Otherwise, it can be left to the default value and the api will just be routable within the Kubernetes cluster.
-    api.url: https://sysdigcloud-api:443
-    # Required: Sysdig Cloud default user. This will be used for the initial login in the web interface
-    sysdigcloud.default.user: test@sysdig.com
-    # Required: Sysdig Cloud default user password
-    sysdigcloud.default.user.password: test
-    # Required: Restrict password login to default user
-    # Force all non-default users to login using the configured IdP
-    sysdigcloud.restrict.password.login: "false"
-    # Optional: forward application logs to stdout
-    sysdigcloud.logging.stdout: "false"
-    # Optional: Sysdig Cloud application JVM options. For heavy load environments you'll need to tweak
-    # the memory or garbage collection settings
-    sysdigcloud.jvm.options: ""
-    # Required: Sysdig Cloud license
-    sysdigcloud.license: ""
-    # Optional: OAuth allowed domains (comma separated list of domains)
-    sysdigcloud.oauth.allowed.domains.list: ""
-    # Optional: Sysdig Cloud Google OAuth Client ID
-    sysdigcloud.google.oauth.client.id: ""
-    # Optional: Sysdig Cloud Google OAuth Client Secret
-    sysdigcloud.google.oauth.client.secret: ""
-    # Required: enable or disable Sysdig Cloud LDAP integration
-    sysdigcloud.ldap.enabled: "false"
-    # Optional: LDAP server endpoint (eg: ldaps://1.2.3.4:636)
-    sysdigcloud.ldap.endpoint: ""
-    # Optional: LDAP DN manager (eg: cn=servicer_acccount,ou=Service accounts,dc=demo,dc=com)
-    sysdigcloud.ldap.manager.dn: ""
-    # Optional: LDAP Manager password
-    sysdigcloud.ldap.manager.password: ""
-    # Optional: LDAP root DN
-    sysdigcloud.ldap.root.dn: ""
-    # Optional: LDAP user search base
-    # If you specify a relative DN (from the root DN), Sysdig Cloud will further narrow down searches to the sub-tree.
-    sysdigcloud.ldap.user.search.base: ""
-    # Optional: LDAP user search filter (eg: (\&(objectClass=organizationalPerson)(sAMAccountName={0})).
-    # This field determines the query to be run to identify the user record. The query is almost always uid={0} as per defined in RFC 2798.
-    # NB. Escape special characters like &
-    sysdigcloud.ldap.user.search.filter: ""
-    # Optional: Group search base (eg: ou=Organization,ou=Users)
-    # This field determines the query to be run to identify the organizational unit that contains groups.
-    sysdigcloud.ldap.group.search.base: ""
-    # Optional: Group search filter (eg: cn=sysdigcloud)
-    # This field is used to determine if a named group exists. If you know your LDAP server only stores group information
-    # in one specific object class, then you can improve group search performance by restricting the filter to just the required object class.
-    sysdigcloud.ldap.group.search.filter: ""
-    # Optional: Group membership filter (eg: member={0})
-    # The group membership filter field controls the search filter that is used to determine group membership.
-    # You are normally safe leaving this field unchanged, the default value ( | (member={0}) (uniqueMember={0}) (memberUid={1})) will be used.
-    sysdigcloud.ldap.group.membership.filter: ""
-    # Optional: Store Sysdig captures using Cassandra instead of S3
-    # NB. This affects cassandra storage
-    sysdigcloud.captures.cassandra.storage: "false"
+    mysql.endpoint: ${MYSQL_SERVICE_NAME}
+    mysql.user: ${MYSQL_USER}
+    mysql.password: ${MYSQL_PASSWORD}
+    cassandra.endpoint: ${CASSANDRA_SERVICE_NAME}
+    cassandra.secure: ${CASSANDRA_SECURE}
+    cassandra.ssl.enabled: ${CASSANDRA_SSL_ENABLED}
+    cassandra.user: ${CASSANDRA_USER}
+    cassandra.password: ${CASSANDRA_PASSWORD}
+    cassandra.port: ${CASSANDRA_PORT}
+    cassandra.replication.factor: ${CASSANDRA_REPLICATION_FACTOR}
+    cassandra.jvm.options: ${CASSANDRA_JVM_OPTIONS}
+    redis.endpoint: ${REDIS_SERVICE_NAME}
+    redis.password: ${REDIS_PASSWORD}
+    elasticsearch.url: ${ES_URL}
+    elasticsearch.jvm.options: ${ES_JVM_OPTIONS}
+    smtp.server: ${SMTP_SERVER}
+    smtp.server.port: ${SMTP_PORT}
+    smtp.user: ${SMTP_USER}
+    smtp.password: ${SMTP_PASSWORD}
+    smtp.tls: ${SMTP_TLS}
+    smtp.ssl: ${SMTP_SSL}
+    smtp.from.address: ${SMPT_FROM}
+    collector.endpoint: ${COLLECTOR_SERVICE_NAME}
+    collector.port: ${COLLECTOR_SERVICE_PORT}
+    api.url: ${API_URL}
+    sysdigcloud.default.user: ${SYSDIG_USER}
+    sysdigcloud.default.user.password: ${SYSDIG_USER_PASSWORD}
+    sysdigcloud.restrict.password.login: ${RESTRICT_LOGIN}
+    sysdigcloud.logging.stdout: ${LOGGING_STDOUT}
+    sysdigcloud.jvm.options: ${SYSDIG_JVM_OPTIONS}
+    sysdigcloud.license: ${LICENSE}
+    sysdigcloud.ldap.enabled: ${LDAP_ENABLED}
+    sysdigcloud.ldap.endpoint: ${LDAP_SERVER}
+    sysdigcloud.ldap.manager.dn: ${LDAP_BIND_DN}
+    sysdigcloud.ldap.manager.password: ${LDAP_BIND_PASSWORD}
+    sysdigcloud.ldap.root.dn: ${LDAP_ROOT_DN}
+    sysdigcloud.ldap.user.search.base: ${LDAP_USER_SEARCH_BASE}
+    sysdigcloud.ldap.user.search.filter: ${LDAP_USER_SEARCH_FILTER}
+    sysdigcloud.ldap.group.search.base: ${LDAP_GROUP_SEARCH_BASE}
+    sysdigcloud.ldap.group.search.filter: ${LDAP_GROUP_SEARCH_FILTER}
+    sysdigcloud.ldap.group.membership.filter: ${LDAP_GROUP_MEMBER_FILTER}
+    sysdigcloud.captures.cassandra.storage: ${SYSDIG_CASSANDRA_STORAGE}
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: sysdigcloud-pull-secret
+  data:
+    .dockerconfigjson: ${QUAY_SECRET}
+  type: kubernetes.io/dockerconfigjson
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: sysdigcloud-mysql-config
+    labels:
+      app: sysdigcloud
+  data:
+    my.cnf: |-
+      [client]
+      port   = 3306
+      socket   = /var/run/mysqld/mysqld.sock
+      default-character-set=utf8
+
+      [mysql]
+      default-character-set=utf8
+      [mysqld_safe]
+      pid-file = /var/run/mysqld/mysqld.pid
+      socket   = /var/run/mysqld/mysqld.sock
+      nice   = 0
+      [mysqld]
+      user   = mysql
+      pid-file = /var/run/mysqld/mysqld.pid
+      socket   = /var/run/mysqld/mysqld.sock
+      port   = 3306
+      basedir    = /usr
+      datadir    = /var/lib/mysql
+      tmpdir   = /tmp
+      lc-messages-dir  = /usr/share/mysql
+      explicit_defaults_for_timestamp
+      collation-server = utf8_unicode_ci
+      init-connect='SET NAMES utf8'
+      character-set-server = utf8
+      log-error  = /var/log/mysql/error.log
+      # Recommended in standard MySQL setup
+      sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+      # Disabling symbolic-links is recommended to prevent assorted security risks
+      symbolic-links=0
+      !includedir /etc/mysql/conf.d/
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${MYSQL_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: mysql
+  spec:
+    ports:
+      - port: 3306
+    selector:
+      app: sysdigcloud
+      role: mysql
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-mysql
+  spec:
+    template:
+      metadata:
+        labels:
+          app: sysdigcloud
+          role: mysql
+      spec:
+        containers:
+          - name: mysql
+            image: mysql:5.6.34
+            env:
+              - name: MYSQL_ROOT_PASSWORD
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: mysql.password
+              - name: MYSQL_USER
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: mysql.user
+              - name: MYSQL_PASSWORD
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: mysql.password
+              - name: MYSQL_DATABASE
+                value: draios
+            volumeMounts:
+              - name: mysql-config
+                mountPath: /etc/mysql/my.cnf
+                subPath: my.cnf
+              - name: data
+                mountPath: /var/lib/mysql
+        volumes:
+          - name: mysql-config
+            configMap:
+              name: sysdigcloud-mysql-config
+          - name: data
+            emptyDir: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${REDIS_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: redis
+  spec:
+    ports:
+      - port: 6379
+    selector:
+      app: sysdigcloud
+      role: redis
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-redis
+  spec:
+    template:
+      metadata:
+        labels:
+          app: sysdigcloud
+          role: redis
+      spec:
+        containers:
+          - name: redis
+            image: quay.io/sysdig/redis:2.8.23
+            env:
+              - name: REDIS_PASSWORD
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: redis.password
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${CASSANDRA_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: cassandra
+  spec:
+    clusterIP: None
+    ports:
+      - port: 9042
+        name: cql
+      - port: 7000
+        name: intra-node-communication
+      - port: 7001
+        name: tls-intra-node-communication
+    selector:
+      app: sysdigcloud
+      role: cassandra
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-cassandra-1
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          instance: "1"
+          app: sysdigcloud
+          role: cassandra
+      spec:
+        containers:
+          - image: quay.io/sysdig/cassandra:2.1.15.0
+            name: cassandra
+            env:
+              - name: CASSANDRA_SERVICE
+                value: sysdigcloud-cassandra
+              - name: CASSANDRA_NUM_SEEDS
+                value: "2"
+              - name: CASSANDRA_CLUSTER_NAME
+                value: sysdigcloud
+              - name: JVM_EXTRA_OPTS
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: cassandra.jvm.options
+              - name: CASSANDRA_SECURE
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: cassandra.secure
+              - name: CASSANDRA_SSL
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: cassandra.ssl.enabled
+            volumeMounts:
+              - mountPath: /var/lib/cassandra
+                name: data
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+        volumes:
+          - name: data
+            emptyDir: {}
 parameters:
 - description: The name of the OpenShift Service exposed for the database
   displayName: Database Service Name
   name: MYSQL_SERVICE_NAME
   required: true
-  value:
+  value: sysdigcloud-mysql
 - description: Username for MySQL user that will be used for accessing the database
   displayName: MySQL Connection Username
   name: MYSQL_USER
@@ -165,15 +287,15 @@ parameters:
   displayName: Cassandra Service Name
   name: CASSANDRA_SERVICE_NAME
   required: true
-  value:
+  value: sysdigcloud-cassandra
 - description: Enable or disable cassandra authentication and authorization in sysdigcloud cassandra image
   displayName: Cassandra authentication and authorization
   name: CASSANDRA_SECURE
-  value: "false"
+  value: false
 - description: Enable cassandra internodes and client encryption
   displayName: Cassandra SSL
   name: CASSANDRA_SSL_ENABLED
-  value: "false"
+  value: false
 - description: Username for Cassandra user that will be used for accessing the database
   displayName: Cassandra Connection Username
   name: CASSANDRA_USER
@@ -196,10 +318,131 @@ parameters:
   displayName: Redis Service Name
   name: REDIS_SERVICE_NAME
   required: true
-  value:
+  value: sysdigcloud-redis
 - description: Password for the Redis connection
   displayName: Redis Connection Password
   name: REDIS_PASSWORD
+- description: Elasticsearch service url
+  displayName: Elasticsearch URL
+  name: ES_URL
+  value: "http://elasticsearch"
+  required: true
+- description: Elasticsearch JVM options. For heavy load environments you'll need to tweak the memory or garbage collection settings
+  displayName: Elasticsearch custom JVM options
+  name: ES_JVM_OPTIONS
+- description: SMTP server address for email notifications
+  displayName: SMTP server address
+  name: SMTP_SERVER
+- description: SMTP server port for email notifications
+  displayName: SMTP server port
+  name: SMTP_PORT
+  value: "25"
+- description: SMTP user for email notifications
+  displayName: SMTP user
+  name: SMTP_USER
+- description: SMTP password for email notifications
+  displayName: SMTP password
+  name: SMTP_PASSWORD
+- description: SMTP server using TLS
+  displayName: SMTP enable TLS
+  name: SMTP_TLS
+  value: "false"
+- description: SMTP server using SSL
+  displayName: SMTP enable SSL
+  name: SMTP_SSL
+  value: "false"
+- description: SMTP From Header used for email notifications
+  displayName: SMTP From Header
+  name: SMPT_FROM
+- description: The name of the OpenShift Service exposed for the Collector
+  displayName: Collector service name
+  name: COLLECTOR_SERVICE_NAME
+  value:
+  required: true
+- description: Collector Service Port
+  displayName: Collector Service Port
+  name: COLLECTOR_SERVICE_PORT
+  value: "6443"
+  required: true
+- description: API Service url
+  displayName: API URL
+  name: API_URL
+  value: "https://sysdigcloud-api:443"
+  required: true
+- description: Sysdig Cloud default user
+  displayName: Sysdig Cloud default user
+  name: SYSDIG_USER
+  value: admin
+  required: true
+- description: Sysdig Cloud default user password
+  displayName: Sysdig Cloud default user password
+  name: SYSDIG_USER_PASSWORD
+  value: redhat
+  required: true
+- description: Restrict password login to default user. Force all non-default users to login using the configured IdP
+  displayName: Restrict password login to default user
+  name: RESTRICT_LOGIN
+  value: false
+  required: true
+- description: Forward application logs to stdout
+  displayName: Forward application logs to stdout
+  name: LOGGING_STDOUT
+  value: false
+- description: Sysdig Cloud application JVM options. For heavy load environments you'll need to tweak the memory or garbage collection settings
+  displayName: Sysdig Cloud application JVM options
+  name: SYSDIG_JVM_OPTIONS
+- description: Sysdig Cloud license
+  displayName: Sysdig Cloud license
+  name: LICENSE
+  value:
+  required: true
+- description: Enable or disable Sysdig Cloud LDAP integration
+  displayName: Sysdig Cloud LDAP integration
+  name: LDAP_ENABLED
+  value: false
+- description: LDAP server endpoint
+  displayName: LDAP server endpoint
+  name: LDAP_SERVER
+- description: LDAP BIND DN
+  displayName: LDAP BIND DN
+  name: LDAP_BIND_DN
+- description: LDAP BIND Password
+  displayName: LDAP BIND Password
+  name: LDAP_BIND_PASSWORD
+- description: LDAP root DN
+  displayName: LDAP root DN
+  name: LDAP_ROOT_DN
+- description: LDAP user search base. If you specify a relative DN (from the root DN), Sysdig Cloud will further narrow down searches to the sub-tree.
+  displayName: LDAP user search base
+  name: LDAP_USER_SEARCH_BASE
+- description: LDAP user search filter. This field determines the query to be run to identify the user record. The query is almost always uid={0} as per defined in RFC 2798. NB. Escape special characters like &
+  # (eg: (\&(objectClass=organizationalPerson)(sAMAccountName={0}))
+  displayName: LDAP user search filter
+  name: LDAP_USER_SEARCH_FILTER
+- description:  Group search base. This field determines the query to be run to identify the organizational unit that contains groups.
+  # (eg: ou=Organization,ou=Users)
+  displayName: Group search base
+  name: LDAP_GROUP_SEARCH_BASE
+- description: Group search filter. This field is used to determine if a named group exists. If you know your LDAP server only stores group information in one specific object class, then you can improve group search performance by restricting the filter to just the required object class.
+  # (eg: cn=sysdigcloud)
+  displayName: Group search filter
+  name: LDAP_GROUP_SEARCH_FILTER
+- description:  Group membership filter. The group membership filter field controls the search filter that is used to determine group membership. You are normally safe leaving this field unchanged, the default value ( | (member={0}) (uniqueMember={0}) (memberUid={1})) will be used.
+  # (eg: member={0})
+  displayName: Group membership filter
+  name: LDAP_GROUP_MEMBER_FILTER
+- description: Store Sysdig captures using Cassandra instead of S3
+  displayName: Store Sysdig captures using Cassandra
+  name: SYSDIG_CASSANDRA_STORAGE
+  value: "false"
+- description: Quay.io registry server secret - base64 format
+  displayName: Quay.io registry server secret - base64 format
+  name: QUAY_SECRET
+  value: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJjM2x6WkdsbkszSmxaRjlvWVhSZlpXMWxZVjl2Y0dWdVgybHVibTkyWVhScGIyNWZiR0ZpT2tVMlZsVlVNMVUzV0ZNM1NrRlJWREZIVGxGR1R6QmFOVGRYVGtGVlJVZFBXRnBGVFZaUVRGWlNObHBJVlVSTk5VbzNOVVJEVERjNVNGQTJSVE5PVmxJPSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
+- description:
+  displayName:
+  name:
+  value:
 - description:
   displayName:
   name:
