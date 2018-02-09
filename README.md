@@ -6,7 +6,6 @@ Deploy Sysdig On Prem in Openshift
 
 2- oc create secret tls sysdigcloud-ssl-secret --cert=server.crt --key=server.key
 
-3- oc adm policy add-scc-to-user privileged system:serviceaccount:sysdigcloud:elastic
 
 
 Pending:
@@ -17,7 +16,6 @@ Pending:
   Move beta Deployment objects to OCP DeploymentConfig
   Add persistent storage to every DC if required
   Move Elasticsearch to StatefulSets
-  Create a SA for Elasticsearch as the Pod must run in Privilege mode (check this requirement against th EFK stack)
   Worker, Redis, API and Collector need a SA with privileges on Anyuid SCC
   Error while using parameter references inside parameter definitions
   Create a passthrough Route for the API
