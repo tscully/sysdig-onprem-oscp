@@ -709,19 +709,3 @@ parameters:
   displayName: Quay.io registry server secret - base64 format
   name: QUAY_SECRET
   value: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJjM2x6WkdsbkszSmxaRjlvWVhSZlpXMWxZVjl2Y0dWdVgybHVibTkyWVhScGIyNWZiR0ZpT2tVMlZsVlVNMVUzV0ZNM1NrRlJWREZIVGxGR1R6QmFOVGRYVGtGVlJVZFBXRnBGVFZaUVRGWlNObHBJVlVSTk5VbzNOVVJEVERjNVNGQTJSVE5PVmxJPSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
-- description:
-  displayName:
-  name:
-  value:
-- description:
-  displayName:
-  name:
-  value:
-- description:
-  displayName:
-  name:
-  value:
-- description:
-  displayName:
-  name:
-  value:
