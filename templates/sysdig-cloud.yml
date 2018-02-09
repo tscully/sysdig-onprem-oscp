@@ -302,6 +302,8 @@ objects:
         containers:
           - image: quay.io/sysdig/elasticsearch:5.1.1
             name: elasticsearch
+            securityContext:
+              privileged: true
             env:
               - name: ELASTICSEARCH_SERVICE
                 value: sysdigcloud-elasticsearch
@@ -317,6 +319,8 @@ objects:
             volumeMounts:
               - mountPath: /usr/share/elasticsearch/data
                 name: data
+        serviceAccount: elastic
+        serviceAccountName: elastic
         imagePullSecrets:
           - name: sysdigcloud-pull-secret
         volumes:
