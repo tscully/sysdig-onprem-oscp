@@ -269,6 +269,266 @@ objects:
         volumes:
           - name: data
             emptyDir: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ES_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: elasticsearch
+  spec:
+    clusterIP: None
+    ports:
+      - port: 9200
+        name: api
+      - port: 9300
+        name: transport-protocol
+    selector:
+      app: sysdigcloud
+      role: elasticsearch
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-elasticsearch-1
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          instance: "1"
+          app: sysdigcloud
+          role: elasticsearch
+      spec:
+        containers:
+          - image: quay.io/sysdig/elasticsearch:5.1.1
+            name: elasticsearch
+            securityContext:
+              privileged: true
+            env:
+              - name: ELASTICSEARCH_SERVICE
+                value: sysdigcloud-elasticsearch
+              - name: ELASTICSEARCH_GOSSIP_NODES_NUM
+                value: "2"
+              - name: ELASTICSEARCH_CLUSTER_NAME
+                value: sysdigcloud
+              - name: ES_JAVA_OPTS
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: elasticsearch.jvm.options
+            volumeMounts:
+              - mountPath: /usr/share/elasticsearch/data
+                name: data
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+        volumes:
+          - name: data
+            emptyDir: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${API_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: api
+  spec:
+    type: LoadBalancer
+    ports:
+      - port: 443
+        name: secure-api
+        targetPort: 443
+    selector:
+      app: sysdigcloud
+      role: api
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-api
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: sysdigcloud
+          role: api
+      spec:
+        containers:
+          - name: api
+            image: quay.io/sysdig/sysdigcloud-backend:722
+            volumeMounts:
+              - name: logs
+                mountPath: /var/log/sysdigcloud
+              - name: config
+                mountPath: /opt/kubernets_config
+              - name: ssl
+                mountPath: /opt/certs/
+            env:
+              - name: ROLES
+                value: api
+              - name: LOG_ROLE
+                value: api
+              - name: LOG_TO_STDOUT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.logging.stdout
+              - name: API_ENDPOINT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: api.url
+              - name: JVM_EXTRA_OPTS
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.jvm.options
+            readinessProbe:
+              httpGet:
+                path: /api/ping
+                port: 9000
+              initialDelaySeconds: 30
+              timeoutSeconds: 2
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+        volumes:
+          - name: logs
+          - name: config
+            configMap:
+              name: sysdigcloud-config
+          - name: ssl
+            secret:
+              secretName: sysdigcloud-ssl-secret
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${COLLECTOR_SERVICE_NAME}
+    labels:
+      app: sysdigcloud
+      role: collector
+  spec:
+    type: LoadBalancer
+    ports:
+      - port: ${COLLECTOR_SERVICE_PORT}
+        name: secure-collector
+        targetPort: ${COLLECTOR_SERVICE_PORT}
+    selector:
+      app: sysdigcloud
+      role: collector
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-collector
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: sysdigcloud
+          role: collector
+      spec:
+        containers:
+          - name: collector
+            image: quay.io/sysdig/sysdigcloud-backend:722
+            volumeMounts:
+              - name: logs
+                mountPath: /var/log/sysdigcloud
+              - name: config
+                mountPath: /opt/kubernets_config
+              - name: ssl
+                mountPath: /opt/certs/
+            env:
+              - name: ROLES
+                value: collector
+              - name: LOG_ROLE
+                value: collector
+              - name: LOG_TO_STDOUT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.logging.stdout
+              - name: API_ENDPOINT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: api.url
+              - name: JVM_EXTRA_OPTS
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.jvm.options
+            readinessProbe:
+              tcpSocket:
+                port: 6000
+              initialDelaySeconds: 30
+              timeoutSeconds: 2
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+        volumes:
+          - name: logs
+          - name: config
+            configMap:
+              name: sysdigcloud-config
+          - name: ssl
+            secret:
+              secretName: sysdigcloud-ssl-secret
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: sysdigcloud-worker
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: sysdigcloud
+          role: worker
+      spec:
+        containers:
+          - name: worker
+            image: quay.io/sysdig/sysdigcloud-backend:722
+            volumeMounts:
+              - name: logs
+                mountPath: /var/log/sysdigcloud
+              - name: config
+                mountPath: /opt/kubernets_config
+              - name: ssl
+                mountPath: /opt/certs/
+            env:
+              - name: ROLES
+                value: worker
+              - name: LOG_ROLE
+                value: worker
+              - name: LOG_TO_STDOUT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.logging.stdout
+              - name: API_ENDPOINT
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: api.url
+              - name: JVM_EXTRA_OPTS
+                valueFrom:
+                  configMapKeyRef:
+                    name: sysdigcloud-config
+                    key: sysdigcloud.jvm.options
+            readinessProbe:
+              httpGet:
+                path: /api/ping
+                port: 9000
+              initialDelaySeconds: 30
+              timeoutSeconds: 2
+        imagePullSecrets:
+          - name: sysdigcloud-pull-secret
+        volumes:
+          - name: logs
+          - name: config
+            configMap:
+              name: sysdigcloud-config
+          - name: ssl
+            secret:
+              secretName: sysdigcloud-ssl-secret
 parameters:
 - description: The name of the OpenShift Service exposed for the database
   displayName: Database Service Name
@@ -322,10 +582,15 @@ parameters:
 - description: Password for the Redis connection
   displayName: Redis Connection Password
   name: REDIS_PASSWORD
+- description: The name of the OpenShift Service exposed for Elasticsearch
+  displayName: Elasticsearch Service Name
+  name: ES_SERVICE_NAME
+  required: true
+  value: sysdigcloud-elasticsearch
 - description: Elasticsearch service url
   displayName: Elasticsearch URL
   name: ES_URL
-  value: "http://elasticsearch"
+  value: "http://${ES_SERVICE_NAME}"
   required: true
 - description: Elasticsearch JVM options. For heavy load environments you'll need to tweak the memory or garbage collection settings
   displayName: Elasticsearch custom JVM options
@@ -357,17 +622,22 @@ parameters:
 - description: The name of the OpenShift Service exposed for the Collector
   displayName: Collector service name
   name: COLLECTOR_SERVICE_NAME
-  value:
+  value: sysdigcloud-collector
   required: true
 - description: Collector Service Port
   displayName: Collector Service Port
   name: COLLECTOR_SERVICE_PORT
   value: "6443"
   required: true
+- description: The name of the OpenShift Service exposed for the API
+  displayName: API service name
+  name: API_SERVICE_NAME
+  value: sysdigcloud-api
+  required: true
 - description: API Service url
   displayName: API URL
   name: API_URL
-  value: "https://sysdigcloud-api:443"
+  value: "https://${API_SERVICE_NAME}:443"
   required: true
 - description: Sysdig Cloud default user
   displayName: Sysdig Cloud default user
