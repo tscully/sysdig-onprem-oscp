@@ -302,8 +302,6 @@ objects:
         containers:
           - image: quay.io/sysdig/elasticsearch:5.1.1
             name: elasticsearch
-            securityContext:
-              privileged: true
             env:
               - name: ELASTICSEARCH_SERVICE
                 value: sysdigcloud-elasticsearch
