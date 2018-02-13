@@ -38,7 +38,7 @@ objects:
     cassandra.jvm.options: ${CASSANDRA_JVM_OPTIONS}
     redis.endpoint: ${REDIS_SERVICE_NAME}
     redis.password: ${REDIS_PASSWORD}
-    elasticsearch.url: ${ES_URL}
+    elasticsearch.url: http://${ES_SERVICE_NAME}
     elasticsearch.jvm.options: ${ES_JVM_OPTIONS}
     smtp.server: ${SMTP_SERVER}
     smtp.server.port: ${SMTP_PORT}
@@ -49,7 +49,7 @@ objects:
     smtp.from.address: ${SMPT_FROM}
     collector.endpoint: ${COLLECTOR_SERVICE_NAME}
     collector.port: ${COLLECTOR_SERVICE_PORT}
-    api.url: ${API_URL}
+    api.url: https://${API_SERVICE_NAME}
     sysdigcloud.default.user: ${SYSDIG_USER}
     sysdigcloud.default.user.password: ${SYSDIG_USER_PASSWORD}
     sysdigcloud.restrict.password.login: ${RESTRICT_LOGIN}
@@ -212,7 +212,6 @@ objects:
       app: sysdigcloud
       role: cassandra
   spec:
-    clusterIP: None
     ports:
       - port: 9042
         name: cql
@@ -223,19 +222,24 @@ objects:
     selector:
       app: sysdigcloud
       role: cassandra
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
-    name: sysdigcloud-cassandra-1
+    name: sysdigcloud-cassandra
   spec:
     replicas: 1
+    selector:
+      app: sysdigcloud
+      role: cassandra
     template:
       metadata:
+        name: sysdigcloud-cassandra
         labels:
           instance: "1"
           app: sysdigcloud
           role: cassandra
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - image: quay.io/sysdig/cassandra:2.1.15.0
             name: cassandra
@@ -268,7 +272,54 @@ objects:
           - name: sysdigcloud-pull-secret
         volumes:
           - name: data
-            emptyDir: {}
+            persistentVolumeClaim:
+              claimName: cassandra-data
+#- apiVersion: extensions/v1beta1
+#  kind: Deployment
+#  metadata:
+#    name: sysdigcloud-cassandra-1
+#  spec:
+#    replicas: 1
+#    template:
+#      metadata:
+#        labels:
+#          instance: "1"
+#          app: sysdigcloud
+#          role: cassandra
+#      spec:
+#        containers:
+#          - image: quay.io/sysdig/cassandra:2.1.15.0
+#            name: cassandra
+#            env:
+#              - name: CASSANDRA_SERVICE
+#                value: sysdigcloud-cassandra
+#              - name: CASSANDRA_NUM_SEEDS
+#                value: "2"
+#              - name: CASSANDRA_CLUSTER_NAME
+#                value: sysdigcloud
+#              - name: JVM_EXTRA_OPTS
+#                valueFrom:
+#                  configMapKeyRef:
+#                    name: sysdigcloud-config
+#                    key: cassandra.jvm.options
+#              - name: CASSANDRA_SECURE
+#                valueFrom:
+#                  configMapKeyRef:
+#                    name: sysdigcloud-config
+#                    key: cassandra.secure
+#              - name: CASSANDRA_SSL
+#                valueFrom:
+#                  configMapKeyRef:
+#                    name: sysdigcloud-config
+#                    key: cassandra.ssl.enabled
+#            volumeMounts:
+#              - mountPath: /var/lib/cassandra
+#                name: data
+#        imagePullSecrets:
+#          - name: sysdigcloud-pull-secret
+#        volumes:
+#          - name: data
+#            emptyDir: {}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -591,11 +642,6 @@ parameters:
   name: ES_SERVICE_NAME
   required: true
   value: sysdigcloud-elasticsearch
-- description: Elasticsearch service url
-  displayName: Elasticsearch URL
-  name: ES_URL
-  value: "http://${ES_SERVICE_NAME}"
-  required: true
 - description: Elasticsearch JVM options. For heavy load environments you'll need to tweak the memory or garbage collection settings
   displayName: Elasticsearch custom JVM options
   name: ES_JVM_OPTIONS
@@ -638,11 +684,6 @@ parameters:
   name: API_SERVICE_NAME
   value: sysdigcloud-api
   required: true
-- description: API Service url
-  displayName: API URL
-  name: API_URL
-  value: "https://${API_SERVICE_NAME}:443"
-  required: true
 - description: Sysdig Cloud default user
   displayName: Sysdig Cloud default user
   name: SYSDIG_USER
@@ -668,7 +709,7 @@ parameters:
 - description: Sysdig Cloud license
   displayName: Sysdig Cloud license
   name: LICENSE
-  value:
+  value: 56c337db17adab5622c52953535f51e4814aaaf7861e94a902229b64432e7a6b6a915259d26f5a998594e4fd8615cefa6055acd02a42d649c6d30808192fc841f7c836c517cee30f8aa6adf71da238cfe64153ea829ecddb7269b8a3d9a0ba92b07dbd33a679f5cc9667cec7878051d00bae60fa8bef1f483d0e8db2a28c5549d6bd089c5f3549ac637b0eebdee541434227d107989a08d2fc626c49ddb36d2fd71ad47c29deb0202ee284103bc2a6c7
   required: true
 - description: Enable or disable Sysdig Cloud LDAP integration
   displayName: Sysdig Cloud LDAP integration
