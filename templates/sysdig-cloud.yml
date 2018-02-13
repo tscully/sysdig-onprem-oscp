@@ -212,6 +212,7 @@ objects:
       app: sysdigcloud
       role: cassandra
   spec:
+    clusterIP: None
     ports:
       - port: 9042
         name: cql
@@ -274,52 +275,6 @@ objects:
           - name: data
             persistentVolumeClaim:
               claimName: cassandra-data
-#- apiVersion: extensions/v1beta1
-#  kind: Deployment
-#  metadata:
-#    name: sysdigcloud-cassandra-1
-#  spec:
-#    replicas: 1
-#    template:
-#      metadata:
-#        labels:
-#          instance: "1"
-#          app: sysdigcloud
-#          role: cassandra
-#      spec:
-#        containers:
-#          - image: quay.io/sysdig/cassandra:2.1.15.0
-#            name: cassandra
-#            env:
-#              - name: CASSANDRA_SERVICE
-#                value: sysdigcloud-cassandra
-#              - name: CASSANDRA_NUM_SEEDS
-#                value: "2"
-#              - name: CASSANDRA_CLUSTER_NAME
-#                value: sysdigcloud
-#              - name: JVM_EXTRA_OPTS
-#                valueFrom:
-#                  configMapKeyRef:
-#                    name: sysdigcloud-config
-#                    key: cassandra.jvm.options
-#              - name: CASSANDRA_SECURE
-#                valueFrom:
-#                  configMapKeyRef:
-#                    name: sysdigcloud-config
-#                    key: cassandra.secure
-#              - name: CASSANDRA_SSL
-#                valueFrom:
-#                  configMapKeyRef:
-#                    name: sysdigcloud-config
-#                    key: cassandra.ssl.enabled
-#            volumeMounts:
-#              - mountPath: /var/lib/cassandra
-#                name: data
-#        imagePullSecrets:
-#          - name: sysdigcloud-pull-secret
-#        volumes:
-#          - name: data
-#            emptyDir: {}
 - apiVersion: v1
   kind: Service
   metadata:
