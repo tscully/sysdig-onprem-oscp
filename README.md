@@ -6,17 +6,9 @@ Deploy Sysdig On Prem in Openshift
 
 2- oc create secret tls sysdigcloud-ssl-secret --cert=server.crt --key=server.key
 
+3- Create Persistent Volumes for:
+    - MySQL
+    - Elasticsearch
+    - Cassandra
 
-
-Pending:
-=======
-
-  ```
-  Move Cassandra to StatefulSets
-  Move beta Deployment objects to OCP DeploymentConfig
-  Add persistent storage to every DC if required
-  Move Elasticsearch to StatefulSets
-  Worker, Redis, API and Collector need a SA with privileges on Anyuid SCC
-  Error while using parameter references inside parameter definitions
-  Create a passthrough Route for the API
-  ```
+4- Add Service Accounts to anyuid and privileged SCC

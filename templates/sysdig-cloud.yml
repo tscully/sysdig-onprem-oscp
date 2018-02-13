@@ -75,6 +75,14 @@ objects:
     .dockerconfigjson: ${QUAY_SECRET}
   type: kubernetes.io/dockerconfigjson
 - apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: sysdigcloud
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: elastic
+- apiVersion: v1
   kind: ConfigMap
   metadata:
     name: sysdigcloud-mysql-config
@@ -125,17 +133,19 @@ objects:
     selector:
       app: sysdigcloud
       role: mysql
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
     name: sysdigcloud-mysql
   spec:
+    replicas: 1
     template:
       metadata:
         labels:
           app: sysdigcloud
           role: mysql
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - name: mysql
             image: mysql:5.6.34
@@ -168,7 +178,8 @@ objects:
             configMap:
               name: sysdigcloud-mysql-config
           - name: data
-            emptyDir: {}
+            persistentVolumeClaim:
+              claimName: mysql-data
 - apiVersion: v1
   kind: Service
   metadata:
@@ -182,17 +193,19 @@ objects:
     selector:
       app: sysdigcloud
       role: redis
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
     name: sysdigcloud-redis
   spec:
+    replicas: 1
     template:
       metadata:
         labels:
           app: sysdigcloud
           role: redis
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - name: redis
             image: quay.io/sysdig/redis:2.8.23
@@ -292,10 +305,10 @@ objects:
     selector:
       app: sysdigcloud
       role: elasticsearch
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
-    name: sysdigcloud-elasticsearch-1
+    name: sysdigcloud-elasticsearch
   spec:
     replicas: 1
     template:
@@ -331,7 +344,8 @@ objects:
           - name: sysdigcloud-pull-secret
         volumes:
           - name: data
-            emptyDir: {}
+            persistentVolumeClaim:
+              claimName: es-data
 - apiVersion: v1
   kind: Service
   metadata:
@@ -340,7 +354,6 @@ objects:
       app: sysdigcloud
       role: api
   spec:
-    type: LoadBalancer
     ports:
       - port: 443
         name: secure-api
@@ -348,8 +361,8 @@ objects:
     selector:
       app: sysdigcloud
       role: api
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
     name: sysdigcloud-api
   spec:
@@ -360,6 +373,7 @@ objects:
           app: sysdigcloud
           role: api
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - name: api
             image: quay.io/sysdig/sysdigcloud-backend:722
@@ -414,7 +428,6 @@ objects:
       app: sysdigcloud
       role: collector
   spec:
-    type: LoadBalancer
     ports:
       - port: 6443
         name: secure-collector
@@ -422,8 +435,8 @@ objects:
     selector:
       app: sysdigcloud
       role: collector
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
     name: sysdigcloud-collector
   spec:
@@ -434,6 +447,7 @@ objects:
           app: sysdigcloud
           role: collector
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - name: collector
             image: quay.io/sysdig/sysdigcloud-backend:722
@@ -479,8 +493,8 @@ objects:
           - name: ssl
             secret:
               secretName: sysdigcloud-ssl-secret
-- apiVersion: extensions/v1beta1
-  kind: Deployment
+- apiVersion: v1
+  kind: ReplicationController
   metadata:
     name: sysdigcloud-worker
   spec:
@@ -491,6 +505,7 @@ objects:
           app: sysdigcloud
           role: worker
       spec:
+        serviceAccountName: sysdigcloud
         containers:
           - name: worker
             image: quay.io/sysdig/sysdigcloud-backend:722
