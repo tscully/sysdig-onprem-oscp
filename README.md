@@ -1,6 +1,7 @@
 # sysdig-onprem
 Deploy Sysdig On Prem in Openshift
 
+0- Create project sysdigcloud
 
 1- openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=US/ST=CA/L=SanFrancisco/O=ICT/CN=onprem.sysdigcloud.com" -keyout server.key -out server.crt
 
@@ -12,3 +13,8 @@ Deploy Sysdig On Prem in Openshift
     - Cassandra
 
 4- Add Service Accounts to anyuid and privileged SCC
+
+  ```
+  oc adm policy add-scc-to-user anyuid system:serviceaccount:sysdigcloud:sysdigcloud
+  oc adm policy add-scc-to-user privileged system:serviceaccount:sysdigcloud:elastic
+  ```
