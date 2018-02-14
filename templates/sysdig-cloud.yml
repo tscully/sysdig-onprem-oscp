@@ -362,6 +362,26 @@ objects:
       app: sysdigcloud
       role: api
 - apiVersion: v1
+  kind: Route
+  id: ${API_SERVICE_NAME}-https
+  metadata:
+    annotations:
+      description: Route for API https service.
+    labels:
+      app: ${API_SERVICE_NAME}
+    name: ${API_SERVICE_NAME}
+  spec:
+    host: ${HOSTNAME}
+    port:
+      targetPort: 3000-tcp
+    tls:
+      termination: edge
+    to:
+      kind: Service
+      name: ${API_SERVICE_NAME}
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
   kind: ReplicationController
   metadata:
     name: sysdigcloud-api
@@ -552,6 +572,36 @@ objects:
           - name: ssl
             secret:
               secretName: sysdigcloud-ssl-secret
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: mysql-data
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${MYSQL_VOLUME_CAPACITY}
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: es-data
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${ES_VOLUME_CAPACITY}
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: cassandra-data
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${CASSANDRA_VOLUME_CAPACITY}
 parameters:
 - description: The name of the OpenShift Service exposed for the database
   displayName: Database Service Name
@@ -654,6 +704,9 @@ parameters:
   name: API_SERVICE_NAME
   value: sysdigcloud-api
   required: true
+- description: Hostname for the OpenShift Route exposing the API
+  displayName: API URL
+  name: HOSTNAME
 - description: Sysdig Cloud default user
   displayName: Sysdig Cloud default user
   name: SYSDIG_USER
@@ -709,7 +762,10 @@ parameters:
   displayName: Group search base
   name: LDAP_GROUP_SEARCH_BASE
 - description: Group search filter. This field is used to determine if a named group exists. If you know your LDAP server only stores group information in one specific object class, then you can improve group search performance by restricting the filter to just the required object class.
-  # (eg: cn=sysdigcloud)
+  # (eg: cn=sysdigcloud)- description: Volume space available for postregs data, e.g. 512Mi, 2Gi
+  name: DB_VOLUME_CAPACITY
+  required: true
+  value: 5Gi
   displayName: Group search filter
   name: LDAP_GROUP_SEARCH_FILTER
 - description:  Group membership filter. The group membership filter field controls the search filter that is used to determine group membership. You are normally safe leaving this field unchanged, the default value ( | (member={0}) (uniqueMember={0}) (memberUid={1})) will be used.
@@ -724,3 +780,16 @@ parameters:
   displayName: Quay.io registry server secret - base64 format
   name: QUAY_SECRET
   value: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJjM2x6WkdsbkszSmxaRjlvWVhSZlpXMWxZVjl2Y0dWdVgybHVibTkyWVhScGIyNWZiR0ZpT2tVMlZsVlVNMVUzV0ZNM1NrRlJWREZIVGxGR1R6QmFOVGRYVGtGVlJVZFBXRnBGVFZaUVRGWlNObHBJVlVSTk5VbzNOVVJEVERjNVNGQTJSVE5PVmxJPSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
+  required: true
+- description: Volume space available for MySQL data, e.g. 512Mi, 2Gi
+  name: MYSQL_VOLUME_CAPACITY
+  required: true
+  value: 2Gi
+- description: Volume space available for Elasticsearch data, e.g. 512Mi, 2Gi
+  name: ES_VOLUME_CAPACITY
+  required: true
+  value: 2Gi
+- description: Volume space available for Cassandra data, e.g. 512Mi, 2Gi
+  name: CASSANDRA_VOLUME_CAPACITY
+  required: true
+  value: 2Gi
