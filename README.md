@@ -1,5 +1,5 @@
 # sysdig-onprem
-Deploy Sysdig On Prem in Openshift
+Instructions to deploy SysdigCloud On Prem in Openshift
 
 1- Create project sysdigcloud
 
@@ -7,9 +7,17 @@ Deploy Sysdig On Prem in Openshift
     oc new-project sysdigcloud --description='SysdigCloud On-Prem' --display-name='SysdigCloud On-Prem'
   ```
 
-2- openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=US/ST=CA/L=SanFrancisco/O=ICT/CN=onprem.sysdigcloud.com" -keyout /tmp/server.key -out /tmp/server.crt
+2- Create a self signed certificate
 
-3- oc create secret tls sysdigcloud-ssl-secret --cert=/tmp/server.crt --key=/tmp/server.key
+  ```
+  openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -subj "/C=US/ST=CA/L=SanFrancisco/O=ICT/CN=onprem.sysdigcloud.com" -keyout /tmp/server.key -out /tmp/server.crt
+  ```
+
+3- Create a Secret using the Self Signed cert from previous step
+
+  ```
+  oc create secret tls sysdigcloud-ssl-secret --cert=/tmp/server.crt --key=/tmp/server.key
+  ```
 
 
 4- Add Service Accounts to anyuid and privileged SCC
