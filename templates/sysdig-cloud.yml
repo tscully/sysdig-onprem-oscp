@@ -373,7 +373,7 @@ objects:
   spec:
     host: ${HOSTNAME}
     port:
-      targetPort: 3000-tcp
+      targetPort: 443-tcp
     tls:
       termination: edge
     to:
