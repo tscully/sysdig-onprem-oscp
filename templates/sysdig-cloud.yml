@@ -373,7 +373,7 @@ objects:
     port:
       targetPort: secure-api
     tls:
-      termination: edge
+      termination: passthrough
     to:
       kind: Service
       name: ${API_SERVICE_NAME}
