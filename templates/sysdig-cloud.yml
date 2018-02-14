@@ -363,17 +363,15 @@ objects:
       role: api
 - apiVersion: v1
   kind: Route
-  id: ${API_SERVICE_NAME}-https
   metadata:
-    annotations:
-      description: Route for API https service.
     labels:
-      app: ${API_SERVICE_NAME}
-    name: ${API_SERVICE_NAME}
+      app: sysdigcloud
+      role: api
+    name: sysdigcloud-api
   spec:
     host: ${HOSTNAME}
     port:
-      targetPort: 443-tcp
+      targetPort: secure-api
     tls:
       termination: edge
     to:
